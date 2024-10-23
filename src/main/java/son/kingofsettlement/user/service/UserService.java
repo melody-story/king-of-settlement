@@ -2,22 +2,20 @@ package son.kingofsettlement.user.service;
 
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import son.kingofsettlement.common.statusCode.UserStatusCode;
 import son.kingofsettlement.user.dto.LogInRequest;
 import son.kingofsettlement.user.dto.SignUpRequest;
-import son.kingofsettlement.user.dto.UserUpdateRequest;
 import son.kingofsettlement.user.dto.UserUpdateRequest;
 import son.kingofsettlement.user.entity.User;
 import son.kingofsettlement.user.entity.UserProfile;
 import son.kingofsettlement.user.exception.UserException;
 import son.kingofsettlement.user.repository.UserRepository;
-
-import java.util.Optional;
 
 // 해당 클래스가 비즈니스 로직을 수행하는 서비스 클래스임을 나타내는 어노테이션으로, 주로 서비스 계층의 클래스에 사용
 @Service
@@ -46,7 +44,7 @@ public class UserService {
 		String password = req.getPassword();
 		String email = req.getEmail();
 		User existUser = userRepository.findOneByEmail(AESEncryption.encrypt(email))
-				.orElseThrow(() -> new UserException(UserStatusCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new UserException(UserStatusCode.USER_NOT_FOUND));
 		HttpSession session = request.getSession();
 		session.setMaxInactiveInterval(1800);
 		session.setAttribute(SessionConst.LOGIN_MEMBER, existUser);
@@ -62,14 +60,17 @@ public class UserService {
 		session.invalidate();
 	}
 
-	public User updateProfile(UserUpdateRequest req) throws Exception {
-		Optional<User> findUser = userRepository.findOneById(req.getUserId());
-		if (!findUser.isPresent()) {
-			throw new Exception("존재하지 않는 사용자입니다."); // execption handler 적용 예정
-		}
+	@Transactional
+	public void updateProfile(String userid, UserUpdateRequest req) {
+		Optional<User> findUser = userRepository.findOneById(Long.parseLong(userid));
 		User user = findUser.get();
 		UserProfile profile = UserProfile.of(req.getNickname(), req.getProfileUrl(), req.getIntroduction());
 		user.updateProfile(profile);
-		return userRepository.save(user);
+		userRepository.save(user);
+	}
+
+	@Transactional
+	public Optional<User> selectOne(Long id) {
+		return userRepository.findOneById(id);
 	}
 }

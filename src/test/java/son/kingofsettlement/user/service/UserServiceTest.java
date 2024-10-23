@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import son.kingofsettlement.user.dto.SignUpRequest;
+import son.kingofsettlement.user.dto.UserUpdateRequest;
 import son.kingofsettlement.user.entity.User;
 import son.kingofsettlement.user.exception.UserException;
 import son.kingofsettlement.user.repository.UserRepository;
@@ -65,5 +66,30 @@ class UserServiceTest {
 			Optional.of(user));
 		//then
 		assertThrows(UserException.class, () -> userService.signUp(req));
+	}
+
+	@Test
+	void updateProfile() {
+		// Given: Initial setup of a User
+		User aUser = User.of("myeonghee.son@gmail.com", "pass");
+		aUser.setId(1L);  // Assuming the user has an ID after being saved
+
+		// When: Mocking repository save and findOneById methods
+		when(userRepository.save(any(User.class))).thenReturn(aUser);
+		when(userRepository.findOneById(aUser.getId())).thenReturn(Optional.of(aUser));
+
+		// Creating the update request
+		UserUpdateRequest req = new UserUpdateRequest("Melody", "", "플랫폼개발팀");
+
+		// Act: Updating the profile via the service method
+		userService.updateProfile(String.valueOf(aUser.getId()), req);
+
+		// Then: Verifying that the profile has been updated as expected
+		assertEquals("Melody", userRepository.findOneById(aUser.getId()).get().getProfile().getNickname());
+
+	}
+
+	@Test
+	void selectOne() {
 	}
 }

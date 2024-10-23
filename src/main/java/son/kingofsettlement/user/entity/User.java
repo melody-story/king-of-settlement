@@ -94,4 +94,8 @@ public class User {
 		this.profile = profile;
 		this.updatedAt = LocalDateTime.now();
 	}
+
+	protected void setterId(Long id) {
+		this.id = id;
+	}
 }
