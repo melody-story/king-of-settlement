@@ -96,6 +96,32 @@ src/main/java/son/kingofsettlement/
 | #24 | 회원 프로필 수정 | `docs/07-user-profile-update.md` |
 | #25 | 회원 프로필 삭제 | `docs/08-user-profile-delete.md` |
 
+## 프로젝트 재개 시 주요 확인 사항
+
+### 즉시 해결 필요한 버그 (#24 브랜치)
+
+- `UserService.updateProfile()`의 `findUser.get()` - Optional 예외 처리 없음 (유저 없을 때 NoSuchElementException 발생)
+- 프로필 수정 HTTP Method `POST` → `PATCH` 또는 `PUT` 으로 변경 권장
+- `@PathVariable("id")` 타입이 `String` → `Long` 으로 변경 권장
+- 수정/삭제 권한 검증 없음 (본인 외 타인 프로필도 수정 가능)
+
+### 브랜치 상태 확인
+
+- `feature/#24-userInfoMod` 브랜치에 미완성 커밋(`fdf7105 수정중`) 존재 → 마무리 후 main merge 필요
+- `#25` 회원 프로필 삭제 커밋(`0bf0f7d`) 내용 확인 필요 (`git show 0bf0f7d`)
+
+### 프론트엔드 시작 전 결정 사항
+
+- 개발 방식 선택: Thymeleaf 서버사이드 렌더링 vs React/Vue 등 SPA
+- SPA 선택 시 CORS 설정 추가 필요
+- Figma 디자인 준비 및 화면 목록 확정
+
+### 운영 환경 전환 전 필요 작업
+
+- H2 → MySQL / PostgreSQL 마이그레이션
+- AES 암호화 키 환경변수 분리 (현재 하드코딩 여부 확인)
+- Spring Security 재도입 검토 (현재 세션 직접 관리 중)
+
 ## 다음 작업 계획
 
 - [ ] 프론트엔드 연동 (Figma 기반 UI 개발)
